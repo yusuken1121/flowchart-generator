@@ -9,9 +9,10 @@
 
 import { z } from 'zod';
 import { createGeminiGateway } from '@/infrastructure/gemini';
-import { SendMessageUseCase } from '@/core/use-cases/send-message.use-case';
+
 import type { Message } from '@/core/domain/message.entity';
 import { createMessage } from '@/core/domain/message.entity';
+import { SendMessageUseCase } from '@/core/use-cases/send-message.use-case';
 
 /**
  * Zod schema for message validation
