@@ -7,7 +7,7 @@ import { sendMessageAction, createChatMessage } from '@/app/_actions/chat';
 import type { Message } from '@/core/domain/message.entity';
 
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+// Card removed
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
