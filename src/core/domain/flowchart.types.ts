@@ -12,3 +12,8 @@ export type FlowchartListItem = {
   sourceUrl?: string;
   createdAt: string;
 };
+
+export type FlowchartDetail = FlowchartListItem & {
+  mermaidCode: string;
+  annotations: { term: string; definition: string }[];
+};

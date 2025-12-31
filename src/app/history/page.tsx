@@ -64,18 +64,18 @@ export default async function HistoryPage() {
             {historyItems?.map((item) => (
               <div
                 key={item.id}
-                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-100 flex flex-col"
+                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-100 flex flex-col group"
               >
-                <div className="p-6 flex-1">
+                <Link href={`/history/${item.id}`} className="block flex-1 p-6">
                   <div className="flex justify-between items-start mb-4">
-                    <h2 className="text-xl font-bold text-gray-900 line-clamp-2">
+                    <h2 className="text-xl font-bold text-gray-900 line-clamp-2 group-hover:text-indigo-600 transition-colors">
                       {item.title}
                     </h2>
                   </div>
                   <p className="text-gray-600 mb-4 line-clamp-3 text-sm leading-relaxed">
                     {item.summary}
                   </p>
-                </div>
+                </Link>
                 <div className="bg-gray-50 px-6 py-4 flex justify-between items-center text-xs text-gray-500 border-t border-gray-100">
                   <span>
                     {formatDistanceToNow(new Date(item.createdAt), {

@@ -1,6 +1,6 @@
 import { Client } from "@notionhq/client";
 import { IFlowchartRepository } from "../../core/ports/IFlowchartRepository";
-import { FlowchartData, FlowchartListItem } from "../../core/domain/flowchart.types";
+import { FlowchartData, FlowchartListItem, FlowchartDetail } from "../../core/domain/flowchart.types";
 
 export class NotionRepository implements IFlowchartRepository {
   private notion: Client;
@@ -145,5 +145,58 @@ export class NotionRepository implements IFlowchartRepository {
         createdAt: page.created_time,
       };
     });
+  }
+
+  async findById(id: string): Promise<FlowchartDetail | null> {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const page: any = await this.notion.pages.retrieve({ page_id: id });
+      
+      const titleProperty = page.properties.Title;
+      const title = titleProperty?.title?.[0]?.plain_text || "No Title";
+
+      const summaryProperty = page.properties.Summary;
+      const summary = summaryProperty?.rich_text?.[0]?.plain_text || "";
+
+      const urlProperty = page.properties.URL;
+      const sourceUrl = urlProperty?.url || undefined;
+
+      // Fetch blocks to get mermaid code and annotations
+      const blocks = await this.notion.blocks.children.list({ block_id: id });
+      
+      let mermaidCode = "";
+      const annotations: { term: string; definition: string }[] = [];
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      blocks.results.forEach((block: any) => {
+        if (block.type === 'code' && block.code.language === 'mermaid') {
+          mermaidCode = block.code.rich_text[0]?.plain_text || "";
+        }
+        
+        if (block.type === 'bulleted_list_item') {
+          const text = block.bulleted_list_item.rich_text[0]?.plain_text || "";
+          const parts = text.split(':').map((s: string) => s.trim());
+          if (parts.length >= 2) {
+             const term = parts[0];
+             const definition = parts.slice(1).join(': ');
+             annotations.push({ term, definition });
+          }
+        }
+      });
+
+      return {
+        id: page.id,
+        title,
+        summary,
+        sourceUrl,
+        createdAt: page.created_time,
+        mermaidCode,
+        annotations
+      };
+
+    } catch (error) {
+      console.error("Error fetching page:", error);
+      return null;
+    }
   }
 }
