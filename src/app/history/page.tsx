@@ -1,19 +1,44 @@
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, startOfDay, startOfWeek, startOfMonth } from "date-fns";
 import { ja } from "date-fns/locale";
 import { NotionRepository } from "../../infrastructure/notion/NotionRepository";
 import { GetFlowchartHistoryUseCase } from "../../core/use-cases/GetFlowchartHistoryUseCase";
+import { HistoryFilter } from "./_components/HistoryFilter";
+import { FlowchartFilterOptions } from "../../core/domain/flowchart.types";
 
 export const dynamic = "force-dynamic";
 
-export default async function HistoryPage() {
+type Props = {
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export default async function HistoryPage({ searchParams }: Props) {
   const repository = new NotionRepository();
   const useCase = new GetFlowchartHistoryUseCase(repository);
   let historyItems;
   let error;
 
+  const category = typeof searchParams.category === "string" ? searchParams.category : undefined;
+  const timeRange = typeof searchParams.timeRange === "string" ? searchParams.timeRange : undefined;
+
+  let startDate: Date | undefined;
+  const now = new Date();
+
+  if (timeRange === "today") {
+    startDate = startOfDay(now);
+  } else if (timeRange === "week") {
+    startDate = startOfWeek(now, { weekStartsOn: 1 });
+  } else if (timeRange === "month") {
+    startDate = startOfMonth(now);
+  }
+
+  const filterOptions: FlowchartFilterOptions = {
+    category: category,
+    startDate: startDate,
+  };
+
   try {
-    historyItems = await useCase.execute();
+    historyItems = await useCase.execute(filterOptions);
   } catch (e) {
     console.error("Failed to fetch history:", e);
     error = "履歴の取得に失敗しました。Notionの設定を確認してください。";
@@ -31,6 +56,8 @@ export default async function HistoryPage() {
             ← 新しく作成する
           </Link>
         </div>
+
+        <HistoryFilter />
 
         {error && (
           <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-8">
@@ -57,7 +84,7 @@ export default async function HistoryPage() {
 
         {!error && (!historyItems || historyItems.length === 0) ? (
           <div className="text-center py-12 bg-white rounded-lg shadow">
-            <p className="text-gray-500">履歴はまだありません。</p>
+            <p className="text-gray-500">条件に一致する履歴はありません。</p>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
@@ -67,10 +94,15 @@ export default async function HistoryPage() {
                 className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-100 flex flex-col group"
               >
                 <Link href={`/history/${item.id}`} className="block flex-1 p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <h2 className="text-xl font-bold text-gray-900 line-clamp-2 group-hover:text-indigo-600 transition-colors">
-                      {item.title}
-                    </h2>
+                  <div className="flex flex-col gap-2 mb-3">
+                     {item.category && (
+                        <span className="self-start inline-flex items-center rounded-sm bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                          {item.category}
+                        </span>
+                     )}
+                     <h2 className="text-xl font-bold text-gray-900 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                        {item.title}
+                     </h2>
                   </div>
                   <p className="text-gray-600 mb-4 line-clamp-3 text-sm leading-relaxed">
                     {item.summary}

@@ -46,13 +46,18 @@ export class GeminiAdapter implements IFlowchartGenerator {
   - **文脈的意義（Significance）: なぜ今、このニュースでこの言葉が問題になっているのか**
   - 上記の要素を組み合わせて解説してください。
 
-## 3. Format Guidelines
+## 4. Category Guidelines
+- 記事の内容に基づいて、以下のカテゴリから最も適切なものを1つ選んでください。
+- 選択肢: 政治, 経済, 国際, 社会, 科学・IT, スポーツ, 芸能, その他
+
+## 5. Format Guidelines
 - 出力は必ず以下のJSON形式のみを行ってください。Markdownのコードブロック記号（\`\`\`json）は含めないでください。
 
 # JSON Schema
 {
   "title": "中学生の知的好奇心を刺激するキャッチーなタイトル",
   "summary": "記事の核心を突く3〜4行の要約。専門用語（言い換え）の形式を活用し、事実関係を正確に記述。",
+  "category": "選択したカテゴリ",
   "mermaidCode": "graph TD; A[事象の発生]-->|影響|B[具体的な変化]; B-->C[問題の表面化]; ...",
   "annotations": [
     {

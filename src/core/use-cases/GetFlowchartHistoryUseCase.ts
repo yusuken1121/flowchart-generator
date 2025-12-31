@@ -1,10 +1,10 @@
 import { IFlowchartRepository } from "../ports/IFlowchartRepository";
-import { FlowchartListItem } from "../domain/flowchart.types";
+import { FlowchartListItem, FlowchartFilterOptions } from "../domain/flowchart.types";
 
 export class GetFlowchartHistoryUseCase {
   constructor(private repository: IFlowchartRepository) {}
 
-  async execute(): Promise<FlowchartListItem[]> {
-    return await this.repository.findAll();
+  async execute(options?: FlowchartFilterOptions): Promise<FlowchartListItem[]> {
+    return await this.repository.findAll(options);
   }
 }

@@ -5,18 +5,21 @@ import Link from "next/link";
 import { generateFlowchart } from "./_actions/flowchart";
 import { saveToNotion } from "./_actions/save";
 import { FlowchartData } from "../core/domain/flowchart.types";
+import { ARTICLE_CATEGORIES } from "../core/domain/categories";
 import MermaidChart from "../components/MermaidChart";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Home() {
   const [input, setInput] = useState("");
   const [url, setUrl] = useState("");
+  const [category, setCategory] = useState<string>("");
   const [data, setData] = useState<FlowchartData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -40,13 +43,20 @@ export default function Home() {
   const handleSaveToNotion = () => {
     if (!data) return;
 
+    if (!category) {
+      toast.error("カテゴリを選択してください");
+      return;
+    }
+
     startSaveTransition(async () => {
       const formData = new FormData();
       if (url.trim()) {
         formData.append("url", url);
       }
       
-      const result = await saveToNotion(data, formData);
+      const sessionData = { ...data, category };
+
+      const result = await saveToNotion(sessionData, formData);
       if (result.success) {
         toast.success("Notionに保存しました！", {
           description: "中学生向けニュースDBに追加されました。",
@@ -136,13 +146,30 @@ export default function Home() {
 
         {data && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-20">
-             <div className="flex justify-between items-center bg-white dark:bg-neutral-800 p-4 rounded-lg border shadow-sm sticky top-4 z-10">
-               <h3 className="font-bold text-neutral-600 dark:text-neutral-300">解説が完成しました！</h3>
+             <div className="flex justify-between items-center bg-white dark:bg-neutral-800 p-4 rounded-lg border shadow-sm sticky top-4 z-10 gap-4">
+               <h3 className="font-bold text-neutral-600 dark:text-neutral-300 whitespace-nowrap">解説が完成しました！</h3>
+               
+               <div className="flex items-center gap-2 flex-1 justify-end">
+                <div className="w-[180px]">
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="カテゴリを選択" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ARTICLE_CATEGORIES.map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <Button 
                   onClick={handleSaveToNotion} 
                   disabled={isSaving}
                   variant="outline"
-                  className="gap-2 border-neutral-300 hover:bg-neutral-100"
+                  className="gap-2 border-neutral-300 hover:bg-neutral-100 whitespace-nowrap"
                 >
                   {isSaving ? (
                      <Loader2 className="w-4 h-4 animate-spin" />
@@ -151,6 +178,7 @@ export default function Home() {
                   )}
                   Notionに保存
                 </Button>
+               </div>
              </div>
 
             <Card className="border-l-8 border-l-blue-500 shadow-xl overflow-hidden">
@@ -159,6 +187,11 @@ export default function Home() {
                 <CardTitle className="text-3xl font-bold leading-tight">{data.title}</CardTitle>
               </CardHeader>
               <CardContent>
+                <div className="mb-4">
+                   <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                      {category || "カテゴリ未選択"}
+                   </span>
+                </div>
                 <p className="text-xl text-neutral-700 dark:text-neutral-300 leading-relaxed">
                   {data.summary}
                 </p>

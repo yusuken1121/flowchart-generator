@@ -3,6 +3,7 @@ export type FlowchartData = {
   summary: string;
   mermaidCode: string; // The graph definition
   annotations: { term: string; definition: string }[];
+  category?: string;
 };
 
 export type FlowchartListItem = {
@@ -10,10 +11,17 @@ export type FlowchartListItem = {
   title: string;
   summary: string;
   sourceUrl?: string;
+  category?: string;
   createdAt: string;
 };
 
 export type FlowchartDetail = FlowchartListItem & {
   mermaidCode: string;
   annotations: { term: string; definition: string }[];
+};
+
+export type FlowchartFilterOptions = {
+  category?: string;
+  startDate?: Date;
+  endDate?: Date;
 };

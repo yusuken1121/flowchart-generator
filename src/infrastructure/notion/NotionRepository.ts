@@ -1,6 +1,7 @@
 import { Client } from "@notionhq/client";
 import { IFlowchartRepository } from "../../core/ports/IFlowchartRepository";
-import { FlowchartData, FlowchartListItem, FlowchartDetail } from "../../core/domain/flowchart.types";
+import { FlowchartData, FlowchartListItem, FlowchartDetail, FlowchartFilterOptions } from "../../core/domain/flowchart.types";
+
 
 export class NotionRepository implements IFlowchartRepository {
   private notion: Client;
@@ -42,6 +43,14 @@ export class NotionRepository implements IFlowchartRepository {
         ],
       },
     };
+
+    if (data.category) {
+      properties.Genre = {
+        select: {
+          name: data.category
+        }
+      };
+    }
 
     if (sourceUrl) {
       properties.URL = {
@@ -112,11 +121,41 @@ export class NotionRepository implements IFlowchartRepository {
     });
   }
 
-  async findAll(): Promise<FlowchartListItem[]> {
+  async findAll(options?: FlowchartFilterOptions): Promise<FlowchartListItem[]> {
     console.log("Fetching history from Notion DB:", this.databaseId);
     
-    // This automatically handles the Database ID format (dashes/no-dashes)
-    const response = await this.notion.databases.query({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filter: any = { and: [] };
+
+    if (options?.category) {
+      filter.and.push({
+        property: "Genre",
+        select: {
+          equals: options.category,
+        },
+      });
+    }
+
+    if (options?.startDate) {
+      filter.and.push({
+        timestamp: "created_time",
+        created_time: {
+          on_or_after: options.startDate.toISOString(),
+        },
+      });
+    }
+    
+    if (options?.endDate) {
+      filter.and.push({
+        timestamp: "created_time",
+        created_time: {
+          on_or_before: options.endDate.toISOString(),
+        },
+      });
+    }
+
+    // Only apply filter if we have conditions
+    const queryParams: any = {
       database_id: this.databaseId,
       sorts: [
         {
@@ -124,7 +163,14 @@ export class NotionRepository implements IFlowchartRepository {
           direction: "descending",
         },
       ],
-    });
+    };
+
+    if (filter.and.length > 0) {
+      queryParams.filter = filter; 
+    }
+
+    // This automatically handles the Database ID format (dashes/no-dashes)
+    const response = await this.notion.databases.query(queryParams);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return response.results.map((page: any) => {
@@ -136,12 +182,16 @@ export class NotionRepository implements IFlowchartRepository {
 
       const urlProperty = page.properties.URL;
       const sourceUrl = urlProperty?.url || undefined;
+      
+      const genreProperty = page.properties.Genre;
+      const category = genreProperty?.select?.name || undefined;
 
       return {
         id: page.id,
         title,
         summary,
         sourceUrl,
+        category,
         createdAt: page.created_time,
       };
     });
@@ -160,6 +210,9 @@ export class NotionRepository implements IFlowchartRepository {
 
       const urlProperty = page.properties.URL;
       const sourceUrl = urlProperty?.url || undefined;
+      
+      const genreProperty = page.properties.Genre;
+      const category = genreProperty?.select?.name || undefined;
 
       // Fetch blocks to get mermaid code and annotations
       const blocks = await this.notion.blocks.children.list({ block_id: id });
@@ -191,7 +244,8 @@ export class NotionRepository implements IFlowchartRepository {
         sourceUrl,
         createdAt: page.created_time,
         mermaidCode,
-        annotations
+        annotations,
+        category
       };
 
     } catch (error) {
