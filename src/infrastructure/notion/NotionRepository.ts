@@ -1,7 +1,11 @@
 import { Client } from "@notionhq/client";
 import { IFlowchartRepository } from "../../core/ports/IFlowchartRepository";
-import { FlowchartData, FlowchartListItem, FlowchartDetail, FlowchartFilterOptions } from "../../core/domain/flowchart.types";
-
+import {
+  FlowchartData,
+  FlowchartListItem,
+  FlowchartDetail,
+  FlowchartFilterOptions,
+} from "../../core/domain/flowchart.types";
 
 export class NotionRepository implements IFlowchartRepository {
   private notion: Client;
@@ -18,7 +22,10 @@ export class NotionRepository implements IFlowchartRepository {
     this.notion = new Client({ auth: apiKey });
     // Sanitize databaseId to ensure no whitespace or quotes
     this.databaseId = dbId;
-    console.log("NotionRepository initialized with DB ID:", this.databaseId.substring(0, 4) + "...");
+    console.log(
+      "NotionRepository initialized with DB ID:",
+      this.databaseId.substring(0, 4) + "..."
+    );
   }
 
   async save(data: FlowchartData, sourceUrl?: string): Promise<void> {
@@ -47,8 +54,8 @@ export class NotionRepository implements IFlowchartRepository {
     if (data.category) {
       properties.Genre = {
         select: {
-          name: data.category
-        }
+          name: data.category,
+        },
       };
     }
 
@@ -106,9 +113,9 @@ export class NotionRepository implements IFlowchartRepository {
                 content: `${annotation.term}: ${annotation.definition}`,
               },
               annotations: {
-                bold: false, 
-              }
-            }
+                bold: false,
+              },
+            },
           ],
         },
       });
@@ -121,9 +128,11 @@ export class NotionRepository implements IFlowchartRepository {
     });
   }
 
-  async findAll(options?: FlowchartFilterOptions): Promise<FlowchartListItem[]> {
+  async findAll(
+    options?: FlowchartFilterOptions
+  ): Promise<FlowchartListItem[]> {
     console.log("Fetching history from Notion DB:", this.databaseId);
-    
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const filter: any = { and: [] };
 
@@ -144,7 +153,7 @@ export class NotionRepository implements IFlowchartRepository {
         },
       });
     }
-    
+
     if (options?.endDate) {
       filter.and.push({
         timestamp: "created_time",
@@ -155,6 +164,7 @@ export class NotionRepository implements IFlowchartRepository {
     }
 
     // Only apply filter if we have conditions
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const queryParams: any = {
       database_id: this.databaseId,
       sorts: [
@@ -166,7 +176,7 @@ export class NotionRepository implements IFlowchartRepository {
     };
 
     if (filter.and.length > 0) {
-      queryParams.filter = filter; 
+      queryParams.filter = filter;
     }
 
     // This automatically handles the Database ID format (dashes/no-dashes)
@@ -182,7 +192,7 @@ export class NotionRepository implements IFlowchartRepository {
 
       const urlProperty = page.properties.URL;
       const sourceUrl = urlProperty?.url || undefined;
-      
+
       const genreProperty = page.properties.Genre;
       const category = genreProperty?.select?.name || undefined;
 
@@ -201,7 +211,7 @@ export class NotionRepository implements IFlowchartRepository {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const page: any = await this.notion.pages.retrieve({ page_id: id });
-      
+
       const titleProperty = page.properties.Title;
       const title = titleProperty?.title?.[0]?.plain_text || "No Title";
 
@@ -210,29 +220,29 @@ export class NotionRepository implements IFlowchartRepository {
 
       const urlProperty = page.properties.URL;
       const sourceUrl = urlProperty?.url || undefined;
-      
+
       const genreProperty = page.properties.Genre;
       const category = genreProperty?.select?.name || undefined;
 
       // Fetch blocks to get mermaid code and annotations
       const blocks = await this.notion.blocks.children.list({ block_id: id });
-      
+
       let mermaidCode = "";
       const annotations: { term: string; definition: string }[] = [];
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       blocks.results.forEach((block: any) => {
-        if (block.type === 'code' && block.code.language === 'mermaid') {
+        if (block.type === "code" && block.code.language === "mermaid") {
           mermaidCode = block.code.rich_text[0]?.plain_text || "";
         }
-        
-        if (block.type === 'bulleted_list_item') {
+
+        if (block.type === "bulleted_list_item") {
           const text = block.bulleted_list_item.rich_text[0]?.plain_text || "";
-          const parts = text.split(':').map((s: string) => s.trim());
+          const parts = text.split(":").map((s: string) => s.trim());
           if (parts.length >= 2) {
-             const term = parts[0];
-             const definition = parts.slice(1).join(': ');
-             annotations.push({ term, definition });
+            const term = parts[0];
+            const definition = parts.slice(1).join(": ");
+            annotations.push({ term, definition });
           }
         }
       });
@@ -245,9 +255,8 @@ export class NotionRepository implements IFlowchartRepository {
         createdAt: page.created_time,
         mermaidCode,
         annotations,
-        category
+        category,
       };
-
     } catch (error) {
       console.error("Error fetching page:", error);
       return null;
