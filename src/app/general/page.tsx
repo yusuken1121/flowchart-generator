@@ -52,7 +52,7 @@ export default function GeneralPage() {
               </Button>
             </Link>
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">
+          <h1 className="text-4xl font-extrabold tracking-tight text-glow-effect text-glow-general">
             Conversation Flow
           </h1>
           <p className="text-lg text-muted-foreground">

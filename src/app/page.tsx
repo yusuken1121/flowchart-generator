@@ -96,7 +96,7 @@ export default function Home() {
               </Button>
             </Link>
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-500">
+          <h1 className="text-4xl font-extrabold tracking-tight text-glow-effect text-glow-news">
             News2Flow
           </h1>
           <p className="text-lg text-muted-foreground">

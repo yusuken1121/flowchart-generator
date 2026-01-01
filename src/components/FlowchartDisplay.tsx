@@ -114,49 +114,56 @@ export default function FlowchartDisplay({
         </div>
       </div>
 
-      <Card
+      <div
         className={cn(
-          "border-l-8 shadow-xl overflow-hidden",
-          theme.primary.border
+          "glow-border",
+          mode === "news" ? "glow-border-news" : "glow-border-general"
         )}
       >
-        <div
+        <Card
           className={cn(
-            "text-white p-1 text-xs text-center font-bold tracking-widest uppercase",
-            theme.primary.bg
+            "border-l-8 shadow-xl overflow-hidden relative bg-card",
+            theme.primary.border
           )}
         >
-          Summary
-        </div>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-3xl font-bold leading-tight">
-            {data.title}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4">
-            {categoryContent ? (
-              categoryContent
-            ) : (
-              <span
-                className={cn(
-                  "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
-                  theme.primary.iconBg,
-                  theme.primary.iconText
-                )}
-              >
-                {data.category || "カテゴリ未選択"}
-              </span>
+          <div
+            className={cn(
+              "text-white p-1 text-xs text-center font-bold tracking-widest uppercase",
+              theme.primary.bg
             )}
+          >
+            Summary
           </div>
-          <p className="text-xl text-card-foreground leading-relaxed">
-            {data.summary}
-          </p>
-        </CardContent>
-      </Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-3xl font-bold leading-tight">
+              {data.title}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4">
+              {categoryContent ? (
+                categoryContent
+              ) : (
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
+                    theme.primary.iconBg,
+                    theme.primary.iconText
+                  )}
+                >
+                  {data.category || "カテゴリ未選択"}
+                </span>
+              )}
+            </div>
+            <p className="text-xl text-card-foreground leading-relaxed">
+              {data.summary}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-4">
+      <div className="space-y-8">
+        <div className="space-y-4">
           <h2 className="text-2xl font-bold flex items-center gap-3 text-foreground">
             <span
               className={cn(
@@ -171,11 +178,18 @@ export default function FlowchartDisplay({
               ? "流れでわかるフローチャート"
               : "話の流れフローチャート"}
           </h2>
-          <Card className="overflow-hidden shadow-md border-2 border-muted">
-            <CardContent className="p-6 bg-white dark:bg-black/20 flex justify-center min-h-[300px] items-center">
-              <MermaidChart code={data.mermaidCode} />
-            </CardContent>
-          </Card>
+          <div
+            className={cn(
+              "glow-border",
+              mode === "news" ? "glow-border-news" : "glow-border-general"
+            )}
+          >
+            <Card className="overflow-hidden shadow-md border-2 border-muted relative bg-card">
+              <CardContent className="p-6 bg-white dark:bg-black/20 flex justify-center min-h-[400px] items-center">
+                <MermaidChart code={data.mermaidCode} />
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -191,12 +205,12 @@ export default function FlowchartDisplay({
             </span>
             {mode === "news" ? "キーワード解説" : "キーワード・トピック解説"}
           </h2>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.annotations.map((item, i) => (
               <Card
                 key={i}
                 className={cn(
-                  "shadow-sm hover:shadow-md transition-shadow",
+                  "shadow-sm hover:shadow-md transition-shadow h-full",
                   theme.annotations.cardBg,
                   theme.annotations.cardBorder
                 )}
@@ -210,7 +224,7 @@ export default function FlowchartDisplay({
                   >
                     <span
                       className={cn(
-                        "w-2 h-2 rounded-full inline-block",
+                        "w-2 h-2 rounded-full inline-block flex-shrink-0",
                         theme.annotations.dot
                       )}
                     ></span>
