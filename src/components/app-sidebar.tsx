@@ -4,6 +4,7 @@ import {
   Settings,
   History,
   MessageSquarePlus,
+  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -21,9 +22,14 @@ import {
 // Menu items.
 const items = [
   {
-    title: "New Flowchart",
+    title: "News Flowchart",
     url: "/",
     icon: MessageSquarePlus,
+  },
+  {
+    title: "General Flowchart",
+    url: "/general",
+    icon: MessageCircle,
   },
   {
     title: "History",

@@ -11,8 +11,11 @@ export class GeminiAdapter implements IFlowchartGenerator {
     this.model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   }
 
-  async generate(text: string): Promise<FlowchartData> {
-    const SYSTEM_PROMPT = `
+  async generate(
+    text: string,
+    mode: "news" | "general" = "news"
+  ): Promise<FlowchartData> {
+    const NEWS_PROMPT = `
 # Role
 あなたは「複雑なニュースの構造を論理的に分解し、中学生にも直感的に理解させるエキスパート教師」です。
 読者（ユーザー）は13〜15歳ですが、子供扱いするのではなく、大人のニュースを深く理解したいという知的好奇心を持っています。
@@ -68,6 +71,56 @@ export class GeminiAdapter implements IFlowchartGenerator {
 }
 `;
 
+    const GENERAL_PROMPT = `
+# Role
+あなたは「話の流れや議論の構造を可視化し、要点を整理するファシリテーター」です。
+入力された文章（会話、会議録、説明文、物語など）を読み解き、その展開や論理構造を明確に可視化してください。
+
+# Task
+入力されたテキストを分析し、以下の2つの成果物を作成してください。
+
+1. **話の流れフローチャート（Mermaid.js形式）**
+   - 話題の移り変わり、因果関係、結論へのプロセスを可視化してください。
+   - graph TD（トップダウン）を使用してください。
+
+2. **キーワード・トピック解説**
+   - 話の中で重要となったキーワードや、議論のポイントになった概念を解説してください。
+
+# Output Guidelines
+
+## Flowchart Guidelines
+- ノード数は内容に応じて適切に設定してください（目安: 5〜15個）。
+- 具体的なアクションや決定事項、話題の転換点をノードにしてください。
+- ノード内のテキストには (), [], "", '' などの括弧や引用符を使用しないでください。
+- 接続線にラベルを付け、話のつながり（「質問」「回答」「反論」「結論」など）を明確にするとより良くなります。
+
+## Annotation Guidelines
+- 重要な用語や、議論の前提となる概念を解説してください。
+- "definition" には、この文脈における意味や重要性を記述してください。
+
+## Category Guidelines
+- 内容に基づいて適切なカテゴリ（例: 会議, 雑談, 説明, 物語, 議論, その他）を自由に出力してください。
+
+## Format Guidelines
+- 出力は以下のJSON形式のみ。Markdownのコードブロック記号は含めないでください。
+
+# JSON Schema
+{
+  "title": "話のテーマやタイトルの要約",
+  "summary": "話全体の要約（3〜4行）",
+  "category": "カテゴリ",
+  "mermaidCode": "graph TD; A[開始]-->B[展開]; ...",
+  "annotations": [
+    {
+      "term": "キーワード",
+      "definition": "解説"
+    }
+  ]
+}
+`;
+
+    const SYSTEM_PROMPT = mode === "general" ? GENERAL_PROMPT : NEWS_PROMPT;
+
     const prompt = `${SYSTEM_PROMPT}\n\nUser Input:\n${text}`;
 
     const result = await this.model.generateContent(prompt);
@@ -75,7 +128,9 @@ export class GeminiAdapter implements IFlowchartGenerator {
     let textResponse = response.text();
 
     // Clean up markdown if present
-    textResponse = textResponse.replace(/^```json\s*/, "").replace(/\s*```$/, "");
+    textResponse = textResponse
+      .replace(/^```json\s*/, "")
+      .replace(/\s*```$/, "");
     // Sometimes it might just be ``` without json
     textResponse = textResponse.replace(/^```\s*/, "");
 
