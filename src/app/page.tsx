@@ -71,7 +71,8 @@ export default function Home() {
       const result = await saveToNotion(sessionData, formData);
       if (result.success) {
         toast.success("Notionに保存しました！", {
-          description: "中学生向けニュースDBに追加されました。",
+          description: "DBに追加されました。",
+
           duration: 3000,
         });
       } else {
