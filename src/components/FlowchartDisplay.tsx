@@ -91,12 +91,12 @@ export default function FlowchartDisplay({
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-20">
-      <div className="flex justify-between items-center bg-card p-4 rounded-lg border shadow-sm sticky top-4 z-10 gap-4">
-        <h3 className="font-bold text-card-foreground whitespace-nowrap">
+      <div className="flex flex-col sm:flex-row justify-between items-center bg-card p-4 rounded-lg border shadow-sm sticky top-4 z-10 gap-4">
+        <h3 className="font-bold text-card-foreground whitespace-nowrap self-start sm:self-center">
           {mode === "news" ? "解説が完成しました！" : "解析完了"}
         </h3>
 
-        <div className="flex items-center gap-2 flex-1 justify-end">
+        <div className="flex items-center gap-2 flex-1 justify-end w-full sm:w-auto">
           {headerContent ? (
             headerContent
           ) : (
@@ -114,53 +114,46 @@ export default function FlowchartDisplay({
         </div>
       </div>
 
-      <div
+      <Card
         className={cn(
-          "glow-border",
-          mode === "news" ? "glow-border-news" : "glow-border-general"
+          "border-l-8 shadow-xl overflow-hidden relative bg-card",
+          theme.primary.border
         )}
       >
-        <Card
+        <div
           className={cn(
-            "border-l-8 shadow-xl overflow-hidden relative bg-card",
-            theme.primary.border
+            "text-white p-1 text-xs text-center font-bold tracking-widest uppercase",
+            theme.primary.bg
           )}
         >
-          <div
-            className={cn(
-              "text-white p-1 text-xs text-center font-bold tracking-widest uppercase",
-              theme.primary.bg
+          Summary
+        </div>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-3xl font-bold leading-tight">
+            {data.title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4">
+            {categoryContent ? (
+              categoryContent
+            ) : (
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
+                  theme.primary.iconBg,
+                  theme.primary.iconText
+                )}
+              >
+                {data.category || "カテゴリ未選択"}
+              </span>
             )}
-          >
-            Summary
           </div>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-3xl font-bold leading-tight">
-              {data.title}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4">
-              {categoryContent ? (
-                categoryContent
-              ) : (
-                <span
-                  className={cn(
-                    "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
-                    theme.primary.iconBg,
-                    theme.primary.iconText
-                  )}
-                >
-                  {data.category || "カテゴリ未選択"}
-                </span>
-              )}
-            </div>
-            <p className="text-xl text-card-foreground leading-relaxed">
-              {data.summary}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+          <p className="text-xl text-card-foreground leading-relaxed">
+            {data.summary}
+          </p>
+        </CardContent>
+      </Card>
 
       <div className="space-y-8">
         <div className="space-y-4">
@@ -178,18 +171,11 @@ export default function FlowchartDisplay({
               ? "流れでわかるフローチャート"
               : "話の流れフローチャート"}
           </h2>
-          <div
-            className={cn(
-              "glow-border",
-              mode === "news" ? "glow-border-news" : "glow-border-general"
-            )}
-          >
-            <Card className="overflow-hidden shadow-md border-2 border-muted relative bg-card">
-              <CardContent className="p-6 bg-white dark:bg-black/20 flex justify-center min-h-[400px] items-center">
-                <MermaidChart code={data.mermaidCode} />
-              </CardContent>
-            </Card>
-          </div>
+          <Card className="overflow-hidden shadow-md border-2 border-muted relative bg-card">
+            <CardContent className="p-6 bg-white dark:bg-black/20 flex justify-center min-h-[400px] items-center">
+              <MermaidChart code={data.mermaidCode} />
+            </CardContent>
+          </Card>
         </div>
 
         <div className="space-y-4">

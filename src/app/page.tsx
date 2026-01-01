@@ -174,24 +174,26 @@ export default function Home() {
             data={data}
             mode="news"
             headerContent={
-              <div className="w-[180px] flex items-center gap-2">
-                <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="カテゴリを選択" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ARTICLE_CATEGORIES.map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+                <div className="w-full sm:w-[180px]">
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="カテゴリを選択" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ARTICLE_CATEGORIES.map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Button
                   onClick={handleSaveToNotion}
                   disabled={isSaving}
                   variant="outline"
-                  className="gap-2 whitespace-nowrap"
+                  className="w-full sm:w-auto gap-2 whitespace-nowrap"
                 >
                   {isSaving ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
