@@ -6,7 +6,7 @@ import { generateFlowchart } from "./_actions/flowchart";
 import { saveToNotion } from "./_actions/save";
 import { FlowchartData } from "../core/domain/flowchart.types";
 import { ARTICLE_CATEGORIES } from "../core/domain/categories";
-import MermaidChart from "../components/MermaidChart";
+import FlowchartDisplay from "../components/FlowchartDisplay";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -170,28 +170,23 @@ export default function Home() {
         </Card>
 
         {data && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-20">
-            <div className="flex justify-between items-center bg-card p-4 rounded-lg border shadow-sm sticky top-4 z-10 gap-4">
-              <h3 className="font-bold text-card-foreground whitespace-nowrap">
-                解説が完成しました！
-              </h3>
-
-              <div className="flex items-center gap-2 flex-1 justify-end">
-                <div className="w-[180px]">
-                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="カテゴリを選択" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ARTICLE_CATEGORIES.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
+          <FlowchartDisplay
+            data={data}
+            mode="news"
+            headerContent={
+              <div className="w-[180px] flex items-center gap-2">
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="カテゴリを選択" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ARTICLE_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Button
                   onClick={handleSaveToNotion}
                   disabled={isSaving}
@@ -206,72 +201,13 @@ export default function Home() {
                   Notionに保存
                 </Button>
               </div>
-            </div>
-
-            <Card className="border-l-8 border-l-blue-500 shadow-xl overflow-hidden">
-              <div className="bg-blue-500 text-white p-1 text-xs text-center font-bold tracking-widest uppercase">
-                Summary
-              </div>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-3xl font-bold leading-tight">
-                  {data.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-4">
-                  <span className="inline-flex items-center rounded-md bg-blue-50/50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-300/30">
-                    {category || "カテゴリ未選択"}
-                  </span>
-                </div>
-                <p className="text-xl text-card-foreground leading-relaxed">
-                  {data.summary}
-                </p>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="md:col-span-2 space-y-4">
-                <h2 className="text-2xl font-bold flex items-center gap-3 text-foreground">
-                  <span className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg text-blue-600 dark:text-blue-300">
-                    📊
-                  </span>
-                  流れでわかるフローチャート
-                </h2>
-                <Card className="overflow-hidden shadow-md border-2 border-muted">
-                  <CardContent className="p-6 bg-white dark:bg-black/20 flex justify-center min-h-[300px] items-center">
-                    <MermaidChart code={data.mermaidCode} />
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="space-y-4">
-                <h2 className="text-2xl font-bold flex items-center gap-3 text-foreground">
-                  <span className="p-2 bg-amber-100 dark:bg-amber-900 rounded-lg text-amber-600 dark:text-amber-300">
-                    💡
-                  </span>
-                  キーワード解説
-                </h2>
-                <div className="space-y-4">
-                  {data.annotations.map((item, i) => (
-                    <Card
-                      key={i}
-                      className="bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/50 shadow-sm hover:shadow-md transition-shadow"
-                    >
-                      <CardHeader className="p-4 pb-2">
-                        <CardTitle className="text-lg font-bold text-amber-900 dark:text-amber-100 flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
-                          {item.term}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-4 pt-0 text-base text-amber-800 dark:text-amber-200 leading-relaxed">
-                        {item.definition}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+            }
+            categoryContent={
+              <span className="inline-flex items-center rounded-md bg-blue-50/50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-300/30">
+                {category || "カテゴリ未選択"}
+              </span>
+            }
+          />
         )}
       </div>
     </main>

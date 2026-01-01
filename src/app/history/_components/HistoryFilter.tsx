@@ -3,13 +3,19 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ARTICLE_CATEGORIES } from "../../../core/domain/categories";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
 export function HistoryFilter() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const initialCategory = searchParams.get("category") || "all";
   const initialTimeRange = searchParams.get("timeRange") || "all";
 
@@ -27,14 +33,16 @@ export function HistoryFilter() {
 
     const query = params.toString();
     const url = query ? `/history?${query}` : "/history";
-    
+
     router.push(url);
   }, [category, timeRange, router]);
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-6 flex flex-wrap gap-4 items-center">
+    <div className=" p-4 rounded-lg shadow-sm border  mb-6 flex flex-wrap gap-4 items-center">
       <div className="flex flex-col gap-1.5 min-w-[150px]">
-        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">カテゴリ</label>
+        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          カテゴリ
+        </label>
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="すべてのカテゴリ" />
@@ -51,7 +59,9 @@ export function HistoryFilter() {
       </div>
 
       <div className="flex flex-col gap-1.5 min-w-[150px]">
-        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">期間</label>
+        <label className="text-xs font-semibold  uppercase tracking-wider">
+          期間
+        </label>
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="期間を指定なし" />
@@ -64,21 +74,21 @@ export function HistoryFilter() {
           </SelectContent>
         </Select>
       </div>
-      
+
       {(category !== "all" || timeRange !== "all") && (
-         <div className="flex items-end h-full pt-6">
-            <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => {
-                    setCategory("all");
-                    setTimeRange("all");
-                }}
-                className="text-gray-500 hover:text-gray-900"
-            >
-                リセット
-            </Button>
-         </div>
+        <div className="flex items-end h-full pt-6">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setCategory("all");
+              setTimeRange("all");
+            }}
+            className=""
+          >
+            リセット
+          </Button>
+        </div>
       )}
     </div>
   );

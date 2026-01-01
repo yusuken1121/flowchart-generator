@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { generateGeneralFlowchart } from "../_actions/general";
 import { FlowchartData } from "../../core/domain/flowchart.types";
-import MermaidChart from "../../components/MermaidChart";
+import FlowchartDisplay from "../../components/FlowchartDisplay";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -108,75 +108,7 @@ export default function GeneralPage() {
           </CardContent>
         </Card>
 
-        {data && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-20">
-            <div className="bg-card p-4 rounded-lg border shadow-sm flex items-center justify-between">
-              <h3 className="font-bold text-card-foreground">解析完了</h3>
-              <span className="inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-800">
-                {data.category || "General"}
-              </span>
-            </div>
-
-            <Card className="border-l-8 border-l-purple-500 shadow-xl overflow-hidden">
-              <div className="bg-purple-500 text-white p-1 text-xs text-center font-bold tracking-widest uppercase">
-                Summary
-              </div>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-3xl font-bold leading-tight">
-                  {data.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xl text-card-foreground leading-relaxed">
-                  {data.summary}
-                </p>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="md:col-span-2 space-y-4">
-                <h2 className="text-2xl font-bold flex items-center gap-3 text-foreground">
-                  <span className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg text-purple-600 dark:text-purple-300">
-                    📊
-                  </span>
-                  話の流れフローチャート
-                </h2>
-                <Card className="overflow-hidden shadow-md border-2 border-muted">
-                  <CardContent className="p-6 bg-white dark:bg-black/20 flex justify-center min-h-[300px] items-center">
-                    <MermaidChart code={data.mermaidCode} />
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="space-y-4">
-                <h2 className="text-2xl font-bold flex items-center gap-3 text-foreground">
-                  <span className="p-2 bg-pink-100 dark:bg-pink-900 rounded-lg text-pink-600 dark:text-pink-300">
-                    💡
-                  </span>
-                  キーワード・トピック解説
-                </h2>
-                <div className="space-y-4">
-                  {data.annotations.map((item, i) => (
-                    <Card
-                      key={i}
-                      className="bg-pink-50/50 dark:bg-pink-950/20 border-pink-200 dark:border-pink-900/50 shadow-sm hover:shadow-md transition-shadow"
-                    >
-                      <CardHeader className="p-4 pb-2">
-                        <CardTitle className="text-lg font-bold text-pink-900 dark:text-pink-100 flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-pink-500 inline-block"></span>
-                          {item.term}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-4 pt-0 text-base text-pink-800 dark:text-pink-200 leading-relaxed">
-                        {item.definition}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {data && <FlowchartDisplay data={data} mode="general" />}
       </div>
     </main>
   );
