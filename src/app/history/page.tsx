@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { formatDistanceToNow, startOfDay, startOfWeek, startOfMonth } from "date-fns";
+import {
+  formatDistanceToNow,
+  startOfDay,
+  startOfWeek,
+  startOfMonth,
+} from "date-fns";
 import { ja } from "date-fns/locale";
 import { NotionRepository } from "../../infrastructure/notion/NotionRepository";
 import { GetFlowchartHistoryUseCase } from "../../core/use-cases/GetFlowchartHistoryUseCase";
@@ -18,8 +23,14 @@ export default async function HistoryPage({ searchParams }: Props) {
   let historyItems;
   let error;
 
-  const category = typeof searchParams.category === "string" ? searchParams.category : undefined;
-  const timeRange = typeof searchParams.timeRange === "string" ? searchParams.timeRange : undefined;
+  const category =
+    typeof searchParams.category === "string"
+      ? searchParams.category
+      : undefined;
+  const timeRange =
+    typeof searchParams.timeRange === "string"
+      ? searchParams.timeRange
+      : undefined;
 
   let startDate: Date | undefined;
   const now = new Date();
@@ -45,13 +56,13 @@ export default async function HistoryPage({ searchParams }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">作成履歴</h1>
+          <h1 className="text-3xl font-bold text-foreground">作成履歴</h1>
           <Link
             href="/"
-            className="text-indigo-600 hover:text-indigo-800 font-medium"
+            className="text-primary hover:text-primary/80 font-medium"
           >
             ← 新しく作成する
           </Link>
@@ -60,11 +71,11 @@ export default async function HistoryPage({ searchParams }: Props) {
         <HistoryFilter />
 
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-8">
+          <div className="bg-destructive/10 border-l-4 border-destructive p-4 mb-8">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
-                  className="h-5 w-5 text-red-400"
+                  className="h-5 w-5 text-destructive"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -76,39 +87,41 @@ export default async function HistoryPage({ searchParams }: Props) {
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-700">{error}</p>
+                <p className="text-sm text-destructive">{error}</p>
               </div>
             </div>
           </div>
         )}
 
         {!error && (!historyItems || historyItems.length === 0) ? (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
-            <p className="text-gray-500">条件に一致する履歴はありません。</p>
+          <div className="text-center py-12 bg-card rounded-lg shadow border">
+            <p className="text-muted-foreground">
+              条件に一致する履歴はありません。
+            </p>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
             {historyItems?.map((item) => (
               <div
                 key={item.id}
-                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-100 flex flex-col group"
+                className="bg-card rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border flex flex-col group"
               >
                 <Link href={`/history/${item.id}`} className="block flex-1 p-6">
                   <div className="flex flex-col gap-2 mb-3">
-                     {item.category && (
-                        <span className="self-start inline-flex items-center rounded-sm bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                          {item.category}
-                        </span>
-                     )}
-                     <h2 className="text-xl font-bold text-gray-900 line-clamp-2 group-hover:text-indigo-600 transition-colors">
-                        {item.title}
-                     </h2>
+                    {item.category && (
+                      <span className="self-start inline-flex items-center rounded-sm bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                        {item.category}
+                      </span>
+                    )}
+                    <h2 className="text-xl font-bold text-card-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                      {item.title}
+                    </h2>
                   </div>
-                  <p className="text-gray-600 mb-4 line-clamp-3 text-sm leading-relaxed">
+                  <p className="text-muted-foreground mb-4 line-clamp-3 text-sm leading-relaxed">
                     {item.summary}
                   </p>
                 </Link>
-                <div className="bg-gray-50 px-6 py-4 flex justify-between items-center text-xs text-gray-500 border-t border-gray-100">
+                <div className="bg-muted/50 px-6 py-4 flex justify-between items-center text-xs text-muted-foreground border-t">
                   <span>
                     {formatDistanceToNow(new Date(item.createdAt), {
                       addSuffix: true,
@@ -120,7 +133,7 @@ export default async function HistoryPage({ searchParams }: Props) {
                       href={item.sourceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-indigo-600 hover:text-indigo-800 hover:underline truncate max-w-[150px]"
+                      className="text-primary hover:underline truncate max-w-[150px]"
                     >
                       元記事を開く ↗
                     </a>
