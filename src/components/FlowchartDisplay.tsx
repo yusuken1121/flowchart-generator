@@ -33,17 +33,17 @@ const THEMES: Record<"news" | "general", ThemeConfig> = {
       border: "border-l-blue-500",
       bg: "bg-blue-500",
       text: "text-blue-700",
-      iconBg: "bg-blue-50/50 dark:bg-blue-900/30",
+      iconBg: "bg-blue-50/50 dark:bg-blue-500/10",
       iconText: "text-blue-700 dark:text-blue-300",
     },
     chart: {
-      iconBg: "bg-blue-100 dark:bg-blue-900",
+      iconBg: "bg-blue-100 dark:bg-blue-500/10",
       iconText: "text-blue-600 dark:text-blue-300",
     },
     annotations: {
-      iconBg: "bg-amber-100 dark:bg-amber-900",
+      iconBg: "bg-amber-100 dark:bg-amber-500/10",
       iconText: "text-amber-600 dark:text-amber-300",
-      cardBg: "bg-amber-50/50 dark:bg-amber-950/20",
+      cardBg: "bg-amber-50/50 dark:bg-amber-950/30",
       cardBorder: "border-amber-200 dark:border-amber-900/50",
       textTitle: "text-amber-900 dark:text-amber-100",
       textContent: "text-amber-800 dark:text-amber-200",
@@ -54,18 +54,18 @@ const THEMES: Record<"news" | "general", ThemeConfig> = {
     primary: {
       border: "border-l-purple-500",
       bg: "bg-purple-500",
-      text: "text-purple-800", // Adjusted from original to match logic
-      iconBg: "bg-purple-100", // Header badge
-      iconText: "text-purple-800",
+      text: "text-purple-800",
+      iconBg: "bg-purple-100 dark:bg-purple-500/10",
+      iconText: "text-purple-800 dark:text-purple-300",
     },
     chart: {
-      iconBg: "bg-purple-100 dark:bg-purple-900",
+      iconBg: "bg-purple-100 dark:bg-purple-500/10",
       iconText: "text-purple-600 dark:text-purple-300",
     },
     annotations: {
-      iconBg: "bg-pink-100 dark:bg-pink-900",
+      iconBg: "bg-pink-100 dark:bg-pink-500/10",
       iconText: "text-pink-600 dark:text-pink-300",
-      cardBg: "bg-pink-50/50 dark:bg-pink-950/20",
+      cardBg: "bg-pink-50/50 dark:bg-pink-950/30",
       cardBorder: "border-pink-200 dark:border-pink-900/50",
       textTitle: "text-pink-900 dark:text-pink-100",
       textContent: "text-pink-800 dark:text-pink-200",
