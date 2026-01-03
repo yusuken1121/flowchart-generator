@@ -13,7 +13,8 @@ export default async function CalendarPage() {
   let items: FlowchartListItem[] = [];
 
   try {
-    items = await useCase.execute();
+    const response = await useCase.execute({ limit: 100 }); // Fetch more for calendar
+    items = response.items;
   } catch (error) {
     console.error("Failed to fetch history for calendar:", error);
   }

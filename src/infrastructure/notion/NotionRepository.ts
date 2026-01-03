@@ -2,9 +2,9 @@ import { Client } from "@notionhq/client";
 import { IFlowchartRepository } from "../../core/ports/IFlowchartRepository";
 import {
   FlowchartData,
-  FlowchartListItem,
   FlowchartDetail,
   FlowchartFilterOptions,
+  FlowchartListResponse,
 } from "../../core/domain/flowchart.types";
 
 export class NotionRepository implements IFlowchartRepository {
@@ -130,7 +130,7 @@ export class NotionRepository implements IFlowchartRepository {
 
   async findAll(
     options?: FlowchartFilterOptions
-  ): Promise<FlowchartListItem[]> {
+  ): Promise<FlowchartListResponse> {
     console.log("Fetching history from Notion DB:", this.databaseId);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -173,7 +173,12 @@ export class NotionRepository implements IFlowchartRepository {
           direction: "descending",
         },
       ],
+      page_size: options?.limit || 12, // Default limit
     };
+
+    if (options?.cursor) {
+      queryParams.start_cursor = options.cursor;
+    }
 
     if (filter.and.length > 0) {
       queryParams.filter = filter;
@@ -183,7 +188,7 @@ export class NotionRepository implements IFlowchartRepository {
     const response = await this.notion.databases.query(queryParams);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return response.results.map((page: any) => {
+    const items = response.results.map((page: any) => {
       const titleProperty = page.properties.Title;
       const title = titleProperty?.title?.[0]?.plain_text || "No Title";
 
@@ -205,6 +210,12 @@ export class NotionRepository implements IFlowchartRepository {
         createdAt: page.created_time,
       };
     });
+
+    return {
+      items,
+      nextCursor: response.next_cursor,
+      hasMore: response.has_more,
+    };
   }
 
   async findById(id: string): Promise<FlowchartDetail | null> {

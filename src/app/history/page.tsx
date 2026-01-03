@@ -9,7 +9,11 @@ import { ja } from "date-fns/locale";
 import { NotionRepository } from "../../infrastructure/notion/NotionRepository";
 import { GetFlowchartHistoryUseCase } from "../../core/use-cases/GetFlowchartHistoryUseCase";
 import { HistoryFilter } from "./_components/HistoryFilter";
-import { FlowchartFilterOptions } from "../../core/domain/flowchart.types";
+import { HistoryPagination } from "./_components/HistoryPagination";
+import {
+  FlowchartFilterOptions,
+  FlowchartListResponse,
+} from "../../core/domain/flowchart.types";
 import {
   Card,
   CardHeader,
@@ -29,7 +33,7 @@ type Props = {
 export default async function HistoryPage({ searchParams }: Props) {
   const repository = new NotionRepository();
   const useCase = new GetFlowchartHistoryUseCase(repository);
-  let historyItems;
+  let response: FlowchartListResponse | null = null;
   let error;
 
   const category =
@@ -40,6 +44,8 @@ export default async function HistoryPage({ searchParams }: Props) {
     typeof searchParams.timeRange === "string"
       ? searchParams.timeRange
       : undefined;
+  const cursor =
+    typeof searchParams.cursor === "string" ? searchParams.cursor : undefined;
 
   let startDate: Date | undefined;
   const now = new Date();
@@ -53,16 +59,20 @@ export default async function HistoryPage({ searchParams }: Props) {
   }
 
   const filterOptions: FlowchartFilterOptions = {
-    category: category,
-    startDate: startDate,
+    category,
+    startDate,
+    cursor,
+    limit: 12, // Page size
   };
 
   try {
-    historyItems = await useCase.execute(filterOptions);
+    response = await useCase.execute(filterOptions);
   } catch (e) {
     console.error("Failed to fetch history:", e);
     error = "Failed to fetch history. Please check Notion settings.";
   }
+
+  const historyItems = response?.items || [];
 
   return (
     <div className="min-h-screen py-12">
@@ -102,57 +112,66 @@ export default async function HistoryPage({ searchParams }: Props) {
           </div>
         )}
 
-        {!error && (!historyItems || historyItems.length === 0) ? (
+        {!error && historyItems.length === 0 ? (
           <div className="text-center py-12 bg-card rounded-lg shadow border">
             <p className="text-muted-foreground">
               No history found matching the criteria.
             </p>
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2">
-            {historyItems?.map((item) => (
-              <Card
-                key={item.id}
-                className="hover:shadow-md transition-shadow duration-200 overflow-hidden group p-0 gap-0"
-              >
-                <Link href={`/history/${item.id}`} className="block flex-1">
-                  <CardHeader className="p-6 pb-2 space-y-3">
-                    {item.category && (
-                      <span className="self-start inline-flex items-center rounded-sm bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                        {item.category}
-                      </span>
+          <>
+            <div className="grid gap-6 md:grid-cols-2">
+              {historyItems.map((item) => (
+                <Card
+                  key={item.id}
+                  className="hover:shadow-md transition-shadow duration-200 overflow-hidden group p-0 gap-0"
+                >
+                  <Link href={`/history/${item.id}`} className="block flex-1">
+                    <CardHeader className="p-6 pb-2 space-y-3">
+                      {item.category && (
+                        <span className="self-start inline-flex items-center rounded-sm bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                          {item.category}
+                        </span>
+                      )}
+                      <CardTitle className="text-xl font-bold text-card-foreground line-clamp-2 group-hover:text-primary transition-colors leading-snug">
+                        {item.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 pt-0">
+                      <CardDescription className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+                        {item.summary}
+                      </CardDescription>
+                    </CardContent>
+                  </Link>
+                  <CardFooter className="bg-muted/50 px-6 py-4 flex justify-between items-center text-xs text-muted-foreground border-t mt-auto">
+                    <span>
+                      {formatDistanceToNow(new Date(item.createdAt), {
+                        addSuffix: true,
+                        locale: ja,
+                      })}
+                    </span>
+                    {item.sourceUrl && (
+                      <a
+                        href={item.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline truncate max-w-[150px]"
+                      >
+                        Open Source ↗
+                      </a>
                     )}
-                    <CardTitle className="text-xl font-bold text-card-foreground line-clamp-2 group-hover:text-primary transition-colors leading-snug">
-                      {item.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6 pt-0">
-                    <CardDescription className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
-                      {item.summary}
-                    </CardDescription>
-                  </CardContent>
-                </Link>
-                <CardFooter className="bg-muted/50 px-6 py-4 flex justify-between items-center text-xs text-muted-foreground border-t mt-auto">
-                  <span>
-                    {formatDistanceToNow(new Date(item.createdAt), {
-                      addSuffix: true,
-                      locale: ja,
-                    })}
-                  </span>
-                  {item.sourceUrl && (
-                    <a
-                      href={item.sourceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline truncate max-w-[150px]"
-                    >
-                      Open Source ↗
-                    </a>
-                  )}
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+
+            {response && (
+              <HistoryPagination
+                nextCursor={response.nextCursor}
+                hasMore={response.hasMore}
+              />
+            )}
+          </>
         )}
       </div>
     </div>

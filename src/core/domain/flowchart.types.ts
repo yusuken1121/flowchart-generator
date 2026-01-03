@@ -24,4 +24,12 @@ export type FlowchartFilterOptions = {
   category?: string;
   startDate?: Date;
   endDate?: Date;
+  cursor?: string;
+  limit?: number;
+};
+
+export type FlowchartListResponse = {
+  items: FlowchartListItem[];
+  nextCursor: string | null;
+  hasMore: boolean;
 };
