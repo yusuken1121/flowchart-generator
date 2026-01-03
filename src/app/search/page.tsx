@@ -4,13 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import PageTitle from "@/components/pageTitle";
 
 export default function SearchPage() {
   return (
     <div className="container mx-auto py-10 max-w-4xl">
-      <h1 className="text-3xl font-bold tracking-tight mb-8 text-primary">
-        Search Flowcharts
-      </h1>
+      <PageTitle title="Search Flowcharts" />
 
       <div className="flex w-full items-center space-x-2 mb-8">
         <div className="relative flex-1">

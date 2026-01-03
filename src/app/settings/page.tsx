@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
+import PageTitle from "@/components/pageTitle";
 
 export default function SettingsPage() {
   const { setTheme, theme } = useTheme();
@@ -27,9 +28,7 @@ export default function SettingsPage() {
 
   return (
     <div className="container mx-auto py-10 max-w-4xl">
-      <h1 className="text-3xl font-bold tracking-tight mb-8 text-primary">
-        Settings
-      </h1>
+      <PageTitle title="Settings" />
 
       <div className="grid gap-6">
         <Card>

@@ -17,6 +17,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 
+// ... imports
+
 export default function GeneralPage() {
   const [input, setInput] = useState("");
   const [data, setData] = useState<FlowchartData | null>(null);
@@ -33,50 +35,40 @@ export default function GeneralPage() {
         setData(result);
       } catch (err) {
         console.error(err);
-        setError("生成に失敗しました。もう一度お試しください。");
+        setError("Generation failed. Please try again.");
       }
     });
   };
 
   return (
-    <main className="min-h-screen p-8 font-sans">
+    <>
       <div className="max-w-5xl mx-auto space-y-8">
         <header className="text-center space-y-2 mb-12 relative">
-          <div className="absolute right-0 top-0">
-            <Link href="/">
-              <Button
-                variant="ghost"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                🏠 ホームに戻る
-              </Button>
-            </Link>
-          </div>
           <h1 className="text-4xl font-extrabold tracking-tight text-glow-effect text-glow-general">
             Conversation Flow
           </h1>
           <p className="text-lg text-muted-foreground">
-            あらゆる話の流れを、わかりやすい図解と解説で。
+            Clear diagrams and explanations for any conversation flow.
           </p>
         </header>
 
         <Card className="border shadow-lg">
           <CardHeader className="bg-muted/50">
-            <CardTitle>テキストを入力</CardTitle>
+            <CardTitle>Input Text</CardTitle>
             <CardDescription>
-              会話、会議録、説明文などをここに貼り付けてください。
+              Paste conversations, meeting minutes, explanations, etc. here.
               <br />
-              話の構造や論理の流れを可視化します。
+              Visualize the structure and logical flow of the story.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 pt-6">
             <div className="space-y-2">
               <Label htmlFor="text-input" className="sr-only">
-                本文
+                Body
               </Label>
               <Textarea
                 id="text-input"
-                placeholder="例：Aさん: 今回のプロジェクトについてですが... Bさん: 私はこう思います..."
+                placeholder="Ex: A: About this project... B: I think..."
                 className="min-h-[200px] text-base leading-relaxed resize-y bg-background"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -93,10 +85,10 @@ export default function GeneralPage() {
                 {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    解析中...
+                    Analyzing...
                   </>
                 ) : (
-                  "フローを作成する"
+                  "Create Flowchart"
                 )}
               </Button>
             </div>
@@ -110,6 +102,6 @@ export default function GeneralPage() {
 
         {data && <FlowchartDisplay data={data} mode="general" />}
       </div>
-    </main>
+    </>
   );
 }

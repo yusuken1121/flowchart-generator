@@ -39,11 +39,11 @@ export default function RootLayout({
         >
           <SidebarProvider>
             <AppSidebar />
-            <main className="w-full relative">
+            <main className="w-full relative min-h-screen font-sans">
               <div className="absolute top-4 left-4 z-50">
                 <SidebarTrigger />
               </div>
-              <div className="pt-16 px-4">{children}</div>
+              <div className="pt-16 p-4">{children}</div>
             </main>
           </SidebarProvider>
           <Toaster />

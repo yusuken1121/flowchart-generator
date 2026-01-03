@@ -10,6 +10,15 @@ import { NotionRepository } from "../../infrastructure/notion/NotionRepository";
 import { GetFlowchartHistoryUseCase } from "../../core/use-cases/GetFlowchartHistoryUseCase";
 import { HistoryFilter } from "./_components/HistoryFilter";
 import { FlowchartFilterOptions } from "../../core/domain/flowchart.types";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "../../components/ui/card";
+import PageTitle from "@/components/pageTitle";
 
 export const dynamic = "force-dynamic";
 
@@ -52,19 +61,19 @@ export default async function HistoryPage({ searchParams }: Props) {
     historyItems = await useCase.execute(filterOptions);
   } catch (e) {
     console.error("Failed to fetch history:", e);
-    error = "履歴の取得に失敗しました。Notionの設定を確認してください。";
+    error = "Failed to fetch history. Please check Notion settings.";
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-12">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground">作成履歴</h1>
+          <PageTitle title="History" />
           <Link
             href="/"
             className="text-primary hover:text-primary/80 font-medium"
           >
-            ← 新しく作成する
+            ← Create New
           </Link>
         </div>
 
@@ -96,32 +105,34 @@ export default async function HistoryPage({ searchParams }: Props) {
         {!error && (!historyItems || historyItems.length === 0) ? (
           <div className="text-center py-12 bg-card rounded-lg shadow border">
             <p className="text-muted-foreground">
-              条件に一致する履歴はありません。
+              No history found matching the criteria.
             </p>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
             {historyItems?.map((item) => (
-              <div
+              <Card
                 key={item.id}
-                className="bg-card rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border flex flex-col group"
+                className="hover:shadow-md transition-shadow duration-200 overflow-hidden group p-0 gap-0"
               >
-                <Link href={`/history/${item.id}`} className="block flex-1 p-6">
-                  <div className="flex flex-col gap-2 mb-3">
+                <Link href={`/history/${item.id}`} className="block flex-1">
+                  <CardHeader className="p-6 pb-2 space-y-3">
                     {item.category && (
                       <span className="self-start inline-flex items-center rounded-sm bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                         {item.category}
                       </span>
                     )}
-                    <h2 className="text-xl font-bold text-card-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                    <CardTitle className="text-xl font-bold text-card-foreground line-clamp-2 group-hover:text-primary transition-colors leading-snug">
                       {item.title}
-                    </h2>
-                  </div>
-                  <p className="text-muted-foreground mb-4 line-clamp-3 text-sm leading-relaxed">
-                    {item.summary}
-                  </p>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6 pt-0">
+                    <CardDescription className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+                      {item.summary}
+                    </CardDescription>
+                  </CardContent>
                 </Link>
-                <div className="bg-muted/50 px-6 py-4 flex justify-between items-center text-xs text-muted-foreground border-t">
+                <CardFooter className="bg-muted/50 px-6 py-4 flex justify-between items-center text-xs text-muted-foreground border-t mt-auto">
                   <span>
                     {formatDistanceToNow(new Date(item.createdAt), {
                       addSuffix: true,
@@ -135,11 +146,11 @@ export default async function HistoryPage({ searchParams }: Props) {
                       rel="noopener noreferrer"
                       className="text-primary hover:underline truncate max-w-[150px]"
                     >
-                      元記事を開く ↗
+                      Open Source ↗
                     </a>
                   )}
-                </div>
-              </div>
+                </CardFooter>
+              </Card>
             ))}
           </div>
         )}

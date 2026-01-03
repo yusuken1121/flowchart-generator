@@ -2,6 +2,7 @@ import { GetFlowchartHistoryUseCase } from "@/core/use-cases/GetFlowchartHistory
 import { NotionRepository } from "@/infrastructure/notion/NotionRepository";
 import { CalendarView } from "./_components/CalendarView";
 import { FlowchartListItem } from "@/core/domain/flowchart.types";
+import PageTitle from "@/components/pageTitle";
 
 // Revalidate every hour
 export const revalidate = 3600;
@@ -19,9 +20,7 @@ export default async function CalendarPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold tracking-tight mb-8 text-foreground">
-        履歴カレンダー
-      </h1>
+      <PageTitle title="History Calendar" />
       <CalendarView items={items} />
     </div>
   );

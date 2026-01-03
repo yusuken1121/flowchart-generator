@@ -38,17 +38,17 @@ export function HistoryFilter() {
   }, [category, timeRange, router]);
 
   return (
-    <div className=" p-4 rounded-lg shadow-sm border  mb-6 flex flex-wrap gap-4 items-center">
+    <div className="bg-card p-4 rounded-lg shadow-sm border  mb-6 flex flex-wrap gap-4 items-center">
       <div className="flex flex-col gap-1.5 min-w-[150px]">
         <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-          カテゴリ
+          Category
         </label>
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="すべてのカテゴリ" />
+            <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">すべてのカテゴリ</SelectItem>
+            <SelectItem value="all">All Categories</SelectItem>
             {ARTICLE_CATEGORIES.map((cat) => (
               <SelectItem key={cat} value={cat}>
                 {cat}
@@ -60,17 +60,17 @@ export function HistoryFilter() {
 
       <div className="flex flex-col gap-1.5 min-w-[150px]">
         <label className="text-xs font-semibold  uppercase tracking-wider">
-          期間
+          Time Range
         </label>
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="期間を指定なし" />
+            <SelectValue placeholder="All Time" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">全期間</SelectItem>
-            <SelectItem value="today">今日</SelectItem>
-            <SelectItem value="week">今週</SelectItem>
-            <SelectItem value="month">今月</SelectItem>
+            <SelectItem value="all">All Time</SelectItem>
+            <SelectItem value="today">Today</SelectItem>
+            <SelectItem value="week">This Week</SelectItem>
+            <SelectItem value="month">This Month</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -86,7 +86,7 @@ export function HistoryFilter() {
             }}
             className=""
           >
-            リセット
+            Reset
           </Button>
         </div>
       )}

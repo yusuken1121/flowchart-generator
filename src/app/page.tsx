@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { generateFlowchart } from "./_actions/flowchart";
 import { saveToNotion } from "./_actions/save";
 import { FlowchartData } from "../core/domain/flowchart.types";
@@ -28,6 +27,8 @@ import {
 import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 
+// ... imports
+
 export default function Home() {
   const [input, setInput] = useState("");
   const [url, setUrl] = useState("");
@@ -47,7 +48,7 @@ export default function Home() {
         setData(result);
       } catch (err) {
         console.error(err);
-        setError("生成に失敗しました。もう一度お試しください。");
+        setError("Generation failed. Please try again.");
       }
     });
   };
@@ -56,7 +57,7 @@ export default function Home() {
     if (!data) return;
 
     if (!category) {
-      toast.error("カテゴリを選択してください");
+      toast.error("Please select a category");
       return;
     }
 
@@ -70,58 +71,47 @@ export default function Home() {
 
       const result = await saveToNotion(sessionData, formData);
       if (result.success) {
-        toast.success("Notionに保存しました！", {
-          description: "DBに追加されました。",
-
+        toast.success("Saved to Notion!", {
+          description: "Added to DB.",
           duration: 3000,
         });
       } else {
-        toast.error("保存に失敗しました", {
-          description: "時間をおいて再度お試しください。",
+        toast.error("Failed to save", {
+          description: "Please try again later.",
         });
       }
     });
   };
 
   return (
-    <main className="min-h-screen p-8 font-sans">
+    <>
       <div className="max-w-5xl mx-auto space-y-8">
         <header className="text-center space-y-2 mb-12 relative">
-          <div className="absolute right-0 top-0">
-            <Link href="/history">
-              <Button
-                variant="ghost"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                📂 履歴を見る
-              </Button>
-            </Link>
-          </div>
           <h1 className="text-4xl font-extrabold tracking-tight text-glow-effect text-glow-news">
             News2Flow
           </h1>
           <p className="text-lg text-muted-foreground">
-            難しいニュースを、わかりやすい図解と解説で。
+            Understand complex news with clear diagrams and explanations.
           </p>
         </header>
 
         <Card className="border shadow-lg">
           <CardHeader className="bg-muted/50">
-            <CardTitle>ニュース記事を入力</CardTitle>
+            <CardTitle>Input News Article</CardTitle>
             <CardDescription>
-              新聞やネットニュースの文章をここに貼り付けてください。
+              Paste the text of a newspaper or online news article here.
               <br />
-              中学生にもわかるように翻訳・図解します。
+              Translated and illustrated for easy understanding.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 pt-6">
             <div className="space-y-2">
               <Label htmlFor="news-input" className="sr-only">
-                本文
+                Body
               </Label>
               <Textarea
                 id="news-input"
-                placeholder="例：今日、国会で新しい予算案が可決されました..."
+                placeholder="Ex: Today, a new budget bill was passed in current parliament..."
                 className="min-h-[200px] text-base leading-relaxed resize-y bg-background"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -133,7 +123,7 @@ export default function Home() {
                 htmlFor="url-input"
                 className="text-sm text-muted-foreground ml-1"
               >
-                元記事のURL（任意）
+                Source URL (Optional)
               </Label>
               <Input
                 id="url-input"
@@ -155,10 +145,10 @@ export default function Home() {
                 {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    作成中...
+                    Generating...
                   </>
                 ) : (
-                  "解説を作成する"
+                  "Generate Explanation"
                 )}
               </Button>
             </div>
@@ -179,7 +169,7 @@ export default function Home() {
                 <div className="w-full sm:w-[180px]">
                   <Select value={category} onValueChange={setCategory}>
                     <SelectTrigger>
-                      <SelectValue placeholder="カテゴリを選択" />
+                      <SelectValue placeholder="Select Category" />
                     </SelectTrigger>
                     <SelectContent>
                       {ARTICLE_CATEGORIES.map((cat) => (
@@ -201,18 +191,18 @@ export default function Home() {
                   ) : (
                     <Save className="w-4 h-4" />
                   )}
-                  Notionに保存
+                  Save to Notion
                 </Button>
               </div>
             }
             categoryContent={
               <span className="inline-flex items-center rounded-md bg-blue-50/50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-300/30">
-                {category || "カテゴリ未選択"}
+                {category || "No Category Selected"}
               </span>
             }
           />
         )}
       </div>
-    </main>
+    </>
   );
 }

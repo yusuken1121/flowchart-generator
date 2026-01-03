@@ -1,10 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
-import { ja } from "date-fns/locale";
 import { NotionRepository } from "../../../infrastructure/notion/NotionRepository";
 import { GetFlowchartByIdUseCase } from "../../../core/use-cases/GetFlowchartByIdUseCase";
 import MermaidChart from "../../../components/MermaidChart";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../../../components/ui/card";
+import { Separator } from "../../../components/ui/separator";
+import { Button } from "../../../components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -28,83 +36,105 @@ export default async function DetailPage({ params }: { params: Params }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen  py-12">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
-          <Link
-            href="/history"
-            className="text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center gap-1"
-          >
-            ← 履歴一覧に戻る
+          <Link href="/history">
+            <Button
+              variant="ghost"
+              className="pl-0 hover:bg-transparent hover:text-primary gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to History
+            </Button>
           </Link>
         </div>
 
-        <article className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-8 border-b border-gray-100">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">{item.title}</h1>
-            
-            <div className="flex flex-wrap gap-4 text-sm text-gray-500 items-center">
-              <span>
-                作成日: {formatDistanceToNow(new Date(item.createdAt), {
-                  addSuffix: true,
-                  locale: ja,
-                })}
-              </span>
-              {item.sourceUrl && (
-                <>
-                  <span className="text-gray-300">|</span>
-                  <a
-                    href={item.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1"
-                  >
-                    元記事を開く ↗
-                  </a>
-                </>
-              )}
+        <Card className="overflow-hidden shadow-md">
+          <CardHeader className="p-8 border-b bg-muted/20">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground items-center">
+                <span className="bg-primary/10 text-primary px-2 py-1 rounded-md text-xs font-medium">
+                  {formatDistanceToNow(new Date(item.createdAt), {
+                    addSuffix: true,
+                  })}
+                </span>
+                {item.sourceUrl && (
+                  <>
+                    <span className="text-border">|</span>
+                    <a
+                      href={item.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 text-xs"
+                    >
+                      Open Source ↗
+                    </a>
+                  </>
+                )}
+              </div>
+              <CardTitle className="text-3xl font-bold leading-tight">
+                {item.title}
+              </CardTitle>
             </div>
-          </div>
+          </CardHeader>
 
-          <div className="p-8 space-y-8">
+          <CardContent className="p-8 space-y-10">
+            {/* Summary Section */}
             <section>
-              <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <span className="w-1 h-6 bg-indigo-500 rounded-full"></span>
-                要約
+              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-foreground">
+                <span className="w-1 h-5 bg-primary rounded-full"></span>
+                Summary
               </h2>
-              <p className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-lg">
+              <div className="text-base leading-7 text-muted-foreground bg-muted/30 p-6 rounded-xl border">
                 {item.summary}
-              </p>
+              </div>
             </section>
 
+            <Separator />
+
+            {/* Flowchart Section */}
             <section>
-              <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <span className="w-1 h-6 bg-indigo-500 rounded-full"></span>
-                フローチャート
+              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-foreground">
+                <span className="w-1 h-5 bg-primary rounded-full"></span>
+                Flowchart
               </h2>
-              <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                 <MermaidChart code={item.mermaidCode} />
+              <div className="bg-background border rounded-xl overflow-hidden shadow-sm p-2">
+                <MermaidChart code={item.mermaidCode} />
               </div>
             </section>
 
             {item.annotations && item.annotations.length > 0 && (
-              <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <span className="w-1 h-6 bg-indigo-500 rounded-full"></span>
-                  用語解説
-                </h2>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {item.annotations.map((annotation, index) => (
-                    <div key={index} className="bg-indigo-50/50 p-4 rounded-lg border border-indigo-100">
-                      <dt className="font-bold text-indigo-900 mb-1">{annotation.term}</dt>
-                      <dd className="text-sm text-indigo-800 leading-relaxed">{annotation.definition}</dd>
-                    </div>
-                  ))}
-                </div>
-              </section>
+              <>
+                <Separator />
+                {/* Annotations Section */}
+                <section>
+                  <h2 className="text-lg font-semibold mb-6 flex items-center gap-2 text-foreground">
+                    <span className="w-1 h-5 bg-primary rounded-full"></span>
+                    Terminology
+                  </h2>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {item.annotations.map((annotation, index) => (
+                      <Card
+                        key={index}
+                        className="shadow-sm hover:shadow-md transition-shadow duration-200 border-muted-foreground/20"
+                      >
+                        <CardHeader className="p-4 bg-muted/10 border-b space-y-0">
+                          <CardTitle className="font-bold text-sm text-foreground">
+                            {annotation.term}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4 text-sm text-muted-foreground leading-relaxed">
+                          {annotation.definition}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </section>
+              </>
             )}
-          </div>
-        </article>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
