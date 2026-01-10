@@ -163,6 +163,25 @@ export class NotionRepository implements IFlowchartRepository {
       });
     }
 
+    if (options?.keyword) {
+      filter.and.push({
+        or: [
+          {
+            property: "Title",
+            title: {
+              contains: options.keyword,
+            },
+          },
+          {
+            property: "Summary",
+            rich_text: {
+              contains: options.keyword,
+            },
+          },
+        ],
+      });
+    }
+
     // Only apply filter if we have conditions
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const queryParams: any = {

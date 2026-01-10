@@ -15,3 +15,22 @@ export async function generateFlowchart(text: string): Promise<FlowchartData> {
 
   return useCase.execute(text);
 }
+
+import { NotionRepository } from "../../infrastructure/notion/NotionRepository";
+import { GetFlowchartHistoryUseCase } from "../../core/use-cases/GetFlowchartHistoryUseCase";
+import {
+  FlowchartFilterOptions,
+  FlowchartListResponse,
+} from "../../core/domain/flowchart.types";
+
+export async function searchFlowcharts(
+  keyword: string
+): Promise<FlowchartListResponse> {
+  const repository = new NotionRepository();
+  const useCase = new GetFlowchartHistoryUseCase(repository);
+  const filter: FlowchartFilterOptions = {
+    keyword,
+    limit: 50,
+  };
+  return useCase.execute(filter);
+}

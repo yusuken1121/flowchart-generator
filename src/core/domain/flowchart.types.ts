@@ -24,6 +24,7 @@ export type FlowchartFilterOptions = {
   category?: string;
   startDate?: Date;
   endDate?: Date;
+  keyword?: string;
   cursor?: string;
   limit?: number;
 };
