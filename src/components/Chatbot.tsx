@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -61,7 +63,6 @@ export default function Chatbot({
         .join("\n\n");
       onHistoryChange(historyText);
     }
-    console.log(messages);
   }, [messages, onHistoryChange]);
 
   const handleSend = async (e?: React.FormEvent) => {
@@ -141,7 +142,45 @@ export default function Chatbot({
                     : "bg-muted text-foreground"
                 }`}
               >
-                {m.content}
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    ul: ({ ...props }) => (
+                      <ul className="list-disc pl-4 my-2" {...props} />
+                    ),
+                    ol: ({ ...props }) => (
+                      <ol className="list-decimal pl-4 my-2" {...props} />
+                    ),
+                    p: ({ ...props }) => (
+                      <p className="my-1 leading-relaxed" {...props} />
+                    ),
+                    a: ({ ...props }) => (
+                      <a
+                        className="underline font-medium hover:opacity-80"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        {...props}
+                      />
+                    ),
+                    code: ({ className, children, ...props }) => {
+                      const match = /language-(\w+)/.exec(className || "");
+                      return match ? (
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      ) : (
+                        <code
+                          className="bg-black/10 dark:bg-white/10 rounded px-1 py-0.5 font-mono text-xs"
+                          {...props}
+                        >
+                          {children}
+                        </code>
+                      );
+                    },
+                  }}
+                >
+                  {m.content}
+                </ReactMarkdown>
               </div>
               {m.role === "user" && (
                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
