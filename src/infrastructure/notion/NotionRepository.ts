@@ -84,7 +84,10 @@ export class NotionRepository implements IFlowchartRepository {
           language: "mermaid",
         },
       },
-      {
+    ];
+
+    if (data.chatHistory) {
+      children.push({
         object: "block",
         type: "heading_2",
         heading_2: {
@@ -92,13 +95,47 @@ export class NotionRepository implements IFlowchartRepository {
             {
               type: "text",
               text: {
-                content: "用語解説",
+                content: "AIとの対話履歴",
               },
             },
           ],
         },
+      });
+
+      // Notion block limit is 2000 chars, so chunk the history if needed
+      const chunks = data.chatHistory.match(/[\s\S]{1,2000}/g) || [];
+      chunks.forEach((chunk) => {
+        children.push({
+          object: "block",
+          type: "paragraph",
+          paragraph: {
+            rich_text: [
+              {
+                type: "text",
+                text: {
+                  content: chunk,
+                },
+              },
+            ],
+          },
+        });
+      });
+    }
+
+    children.push({
+      object: "block",
+      type: "heading_2",
+      heading_2: {
+        rich_text: [
+          {
+            type: "text",
+            text: {
+              content: "用語解説",
+            },
+          },
+        ],
       },
-    ];
+    });
 
     // Add annotations as bulleted list items
     data.annotations.forEach((annotation) => {
@@ -259,11 +296,27 @@ export class NotionRepository implements IFlowchartRepository {
 
       let mermaidCode = "";
       const annotations: { term: string; definition: string }[] = [];
+      let chatHistory = "";
+      let collectingHistory = false;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       blocks.results.forEach((block: any) => {
         if (block.type === "code" && block.code.language === "mermaid") {
           mermaidCode = block.code.rich_text[0]?.plain_text || "";
+        }
+
+        if (block.type === "heading_2") {
+          const text = block.heading_2.rich_text[0]?.plain_text || "";
+          if (text === "AIとの対話履歴") {
+            collectingHistory = true;
+          } else if (text === "用語解説") {
+            collectingHistory = false;
+          }
+        }
+
+        if (collectingHistory && block.type === "paragraph") {
+          const text = block.paragraph.rich_text[0]?.plain_text || "";
+          chatHistory += text;
         }
 
         if (block.type === "bulleted_list_item") {
@@ -286,6 +339,7 @@ export class NotionRepository implements IFlowchartRepository {
         mermaidCode,
         annotations,
         category,
+        chatHistory: chatHistory || undefined,
       };
     } catch (error) {
       console.error("Error fetching page:", error);

@@ -13,6 +13,7 @@ import {
 import { Separator } from "../../../components/ui/separator";
 import { Button } from "../../../components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import Chatbot from "../../../components/Chatbot";
 
 export const dynamic = "force-dynamic";
 
@@ -133,6 +134,20 @@ export default async function DetailPage({ params }: { params: Params }) {
                 </section>
               </>
             )}
+
+            <Separator />
+
+            {/* AI Chatbot Section */}
+            <section>
+              <h2 className="text-lg font-semibold mb-6 flex items-center gap-2 text-foreground">
+                <span className="w-1 h-5 bg-primary rounded-full"></span>
+                AI Assistant
+              </h2>
+              <Chatbot
+                context={`Title: ${item.title}\n\nSummary: ${item.summary}\n\nFlowchart (Mermaid):\n${item.mermaidCode}\n\nKey Terms:\n${item.annotations.map((a) => `${a.term}: ${a.definition}`).join("\n")}`}
+                initialHistory={item.chatHistory}
+              />
+            </section>
           </CardContent>
         </Card>
       </div>

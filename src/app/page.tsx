@@ -35,6 +35,7 @@ export default function Home() {
   const [category, setCategory] = useState<string>("");
   const [data, setData] = useState<FlowchartData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [chatHistory, setChatHistory] = useState<string>("");
   const [isPending, startTransition] = useTransition();
   const [isSaving, startSaveTransition] = useTransition();
 
@@ -42,6 +43,7 @@ export default function Home() {
     if (!input.trim()) return;
 
     setError(null);
+    setChatHistory(""); // Reset chat history on new generation
     startTransition(async () => {
       try {
         const result = await generateFlowchart(input);
@@ -67,7 +69,7 @@ export default function Home() {
         formData.append("url", url);
       }
 
-      const sessionData = { ...data, category };
+      const sessionData: FlowchartData = { ...data, category, chatHistory };
 
       const result = await saveToNotion(sessionData, formData);
       if (result.success) {
@@ -200,6 +202,7 @@ export default function Home() {
                 {category || "No Category Selected"}
               </span>
             }
+            onChatHistoryChange={setChatHistory}
           />
         )}
       </div>

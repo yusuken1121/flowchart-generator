@@ -4,6 +4,7 @@ export type FlowchartData = {
   mermaidCode: string; // The graph definition
   annotations: { term: string; definition: string }[];
   category?: string;
+  chatHistory?: string;
 };
 
 export type FlowchartListItem = {
@@ -18,6 +19,7 @@ export type FlowchartListItem = {
 export type FlowchartDetail = FlowchartListItem & {
   mermaidCode: string;
   annotations: { term: string; definition: string }[];
+  chatHistory?: string;
 };
 
 export type FlowchartFilterOptions = {

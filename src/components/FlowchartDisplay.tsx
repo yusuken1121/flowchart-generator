@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { FlowchartData } from "../core/domain/flowchart.types";
 import MermaidChart from "./MermaidChart";
+import Chatbot from "./Chatbot";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -79,6 +80,7 @@ type FlowchartDisplayProps = {
   mode?: "news" | "general";
   headerContent?: ReactNode;
   categoryContent?: ReactNode; // Alternative to simple text category
+  onChatHistoryChange?: (history: string) => void;
 };
 
 export default function FlowchartDisplay({
@@ -86,6 +88,7 @@ export default function FlowchartDisplay({
   mode = "news",
   headerContent,
   categoryContent,
+  onChatHistoryChange,
 }: FlowchartDisplayProps) {
   const theme = THEMES[mode];
 
@@ -228,6 +231,27 @@ export default function FlowchartDisplay({
               </Card>
             ))}
           </div>
+        </div>
+
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold flex items-center gap-3 text-foreground">
+            <span
+              className={cn(
+                "p-2 rounded-lg",
+                theme.annotations.iconBg,
+                theme.annotations.iconText
+              )}
+            >
+              🤖
+            </span>
+            AI Assistant
+          </h2>
+          <Chatbot
+            context={`Title: ${data.title}\n\nSummary: ${data.summary}\n\nFlowchart (Mermaid):\n${data.mermaidCode}\n\nKey Terms:\n${data.annotations
+              .map((a) => `${a.term}: ${a.definition}`)
+              .join("\n")}`}
+            onHistoryChange={onChatHistoryChange}
+          />
         </div>
       </div>
     </div>

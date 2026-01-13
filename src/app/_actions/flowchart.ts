@@ -34,3 +34,17 @@ export async function searchFlowcharts(
   };
   return useCase.execute(filter);
 }
+
+export async function chatWithAI(
+  context: string,
+  history: { role: "user" | "model"; parts: string }[],
+  message: string
+): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not set");
+  }
+
+  const adapter = new GeminiAdapter(apiKey);
+  return adapter.chat(context, history, message);
+}

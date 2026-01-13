@@ -146,4 +146,39 @@ export class GeminiAdapter implements IFlowchartGenerator {
       throw new Error("Failed to parse AI response");
     }
   }
+
+  async chat(
+    context: string,
+    history: { role: "user" | "model"; parts: string }[],
+    message: string
+  ): Promise<string> {
+    const chat = this.model.startChat({
+      history: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `Current Context (News/Article):\n${context}\n\nYou are a helpful assistant answering questions about the above context.`,
+            },
+          ],
+        },
+        {
+          role: "model",
+          parts: [
+            {
+              text: "Understood. I am ready to answer questions about the article.",
+            },
+          ],
+        },
+        ...history.map((h) => ({
+          role: h.role,
+          parts: [{ text: h.parts }],
+        })),
+      ],
+    });
+
+    const result = await chat.sendMessage(message);
+    const response = await result.response;
+    return response.text();
+  }
 }
