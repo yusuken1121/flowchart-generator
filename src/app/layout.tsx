@@ -5,6 +5,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { ResearchFloatingButton } from "@/components/research/research-floating-button";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,6 +50,7 @@ export default function RootLayout({
               <div className="pt-16 p-4">{children}</div>
             </main>
           </SidebarProvider>
+          <ResearchFloatingButton />
           <Toaster />
         </ThemeProvider>
       </body>
