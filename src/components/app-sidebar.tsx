@@ -7,6 +7,7 @@ import {
   History,
   MessageSquarePlus,
   MessageCircle,
+  Library,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -55,6 +56,11 @@ const manageItems = [
     title: "Search",
     url: "/search",
     icon: Search,
+  },
+  {
+    title: "Research",
+    url: "/research",
+    icon: Library,
   },
   {
     title: "Settings",
