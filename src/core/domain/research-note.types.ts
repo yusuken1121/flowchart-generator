@@ -1,4 +1,5 @@
 export interface ResearchNote {
+  id?: string;
   title: string;
   category: string;
   sourceUrl?: string;

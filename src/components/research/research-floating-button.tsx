@@ -121,7 +121,7 @@ export function ResearchFloatingButton() {
             </Button>
           </PopoverTrigger>
           <PopoverContent
-            className="w-[400px] p-0 mr-6 mb-2 overflow-hidden shadow-2xl border-none"
+            className="w-[90vw] sm:w-[400px] p-0 mr-4 sm:mr-6 mb-2 overflow-hidden shadow-2xl border-none"
             side="top"
             align="end"
           >

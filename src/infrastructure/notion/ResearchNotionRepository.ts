@@ -9,6 +9,7 @@ import {
   ResearchNote,
   CategoryOption,
 } from "../../core/domain/research-note.types";
+import { convertMarkdownToNotionBlocks } from "../../lib/markdown-utils";
 
 export class ResearchNotionRepository implements IResearchRepository {
   private notion: Client;
@@ -104,26 +105,11 @@ export class ResearchNotionRepository implements IResearchRepository {
     // Content as blocks
     // Requirement F-3: "テキストがNotionのプロパティ上限を超える場合...ページ本文（blocks）として保存"
     // Also "Content | Rich Text | (Page Content)"
-    const children: BlockObjectRequest[] = [];
 
-    // Chunk content if too long
-    const chunks = note.content.match(/[\s\S]{1,2000}/g) || [];
-    chunks.forEach((chunk) => {
-      children.push({
-        object: "block",
-        type: "paragraph",
-        paragraph: {
-          rich_text: [
-            {
-              type: "text",
-              text: {
-                content: chunk,
-              },
-            },
-          ],
-        },
-      });
-    });
+    // Use our markdown converter util
+    const children: BlockObjectRequest[] = convertMarkdownToNotionBlocks(
+      note.content,
+    );
 
     try {
       await this.notion.pages.create({
@@ -136,6 +122,97 @@ export class ResearchNotionRepository implements IResearchRepository {
       // But for now, let's assume the user sets up the DB as per requirements.
       console.error("Failed to save research note", e);
       throw e;
+    }
+  }
+  async findAll(): Promise<ResearchNote[]> {
+    try {
+      const response = await this.notion.databases.query({
+        database_id: this.databaseId,
+        sorts: [
+          {
+            timestamp: "created_time",
+            direction: "descending",
+          },
+        ],
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return response.results.map((page: any) => {
+        const titleProperty = page.properties.Title;
+        const title = titleProperty?.title?.[0]?.plain_text || "No Title";
+
+        // Try both "Category" and "Genre"
+        const categoryProperty =
+          page.properties.Category || page.properties.Genre;
+        const category = categoryProperty?.select?.name || "Uncategorized";
+
+        // Try both "URL" and "Source URL"
+        const urlProperty =
+          page.properties.URL || page.properties["Source URL"];
+        const sourceUrl = urlProperty?.url || undefined;
+
+        return {
+          id: page.id,
+          title,
+          category,
+          sourceUrl,
+          content: "", // Content is not fetched in list view for performance
+          timestamp: new Date(page.created_time),
+        };
+      });
+    } catch (error) {
+      console.error("Error fetching research notes:", error);
+      throw error;
+    }
+  }
+  async findById(id: string): Promise<ResearchNote | null> {
+    try {
+      // 1. Fetch Page Properties
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const page: any = await this.notion.pages.retrieve({ page_id: id });
+
+      if (!page) return null;
+
+      const titleProperty = page.properties.Title;
+      const title = titleProperty?.title?.[0]?.plain_text || "No Title";
+
+      const categoryProperty =
+        page.properties.Category || page.properties.Genre;
+      const category = categoryProperty?.select?.name || "Uncategorized";
+
+      const urlProperty = page.properties.URL || page.properties["Source URL"];
+      const sourceUrl = urlProperty?.url || undefined;
+
+      // 2. Fetch Page Content (Blocks)
+      const blocks = await this.notion.blocks.children.list({
+        block_id: id,
+      });
+
+      // Simple reconstruction of content from blocks
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const content = blocks.results
+        .map((block: any) => {
+          // This is a naive implementation. Ideally we convert blocks back to Markdown
+          // For now, we just extract plain text from common block types
+          const type = block.type;
+          if (block[type].rich_text) {
+            return block[type].rich_text.map((t: any) => t.plain_text).join("");
+          }
+          return "";
+        })
+        .join("\n\n");
+
+      return {
+        id: page.id,
+        title,
+        category,
+        sourceUrl,
+        content,
+        timestamp: new Date(page.created_time),
+      };
+    } catch (error) {
+      console.error(`Error fetching research note ${id}:`, error);
+      return null;
     }
   }
 }
