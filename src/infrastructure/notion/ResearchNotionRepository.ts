@@ -216,4 +216,18 @@ export class ResearchNotionRepository implements IResearchRepository {
       return null;
     }
   }
+  async appendContent(id: string, content: string): Promise<void> {
+    try {
+      const children: BlockObjectRequest[] =
+        convertMarkdownToNotionBlocks(content);
+
+      await this.notion.blocks.children.append({
+        block_id: id,
+        children: children,
+      });
+    } catch (error) {
+      console.error(`Error appending content to note ${id}:`, error);
+      throw error;
+    }
+  }
 }

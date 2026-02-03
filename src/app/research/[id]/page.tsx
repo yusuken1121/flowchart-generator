@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { ArrowLeft, ExternalLink, Calendar, Tag } from "lucide-react";
+import { ArrowLeft, ExternalLink, Calendar, Tag, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ResearchNote {
   id: string;
@@ -35,6 +36,9 @@ export default function ResearchDetailPage() {
 
   const [note, setNote] = useState<ResearchNote | null>(null);
   const [loading, setLoading] = useState(true);
+  const [appendContent, setAppendContent] = useState("");
+  const [isAppending, setIsAppending] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -59,6 +63,34 @@ export default function ResearchDetailPage() {
     fetchNote();
   }, [id]);
 
+  async function handleAppend() {
+    if (!appendContent.trim()) return;
+    setIsAppending(true);
+    try {
+      const res = await fetch(`/api/research/notes/${id}/append`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: appendContent }),
+      });
+
+      if (!res.ok) throw new Error("Failed to append content");
+
+      // Refresh note
+      const updatedRes = await fetch(`/api/research/notes/${id}`);
+      if (updatedRes.ok) {
+        const data = await updatedRes.json();
+        setNote(data.note);
+      }
+
+      setAppendContent("");
+    } catch (err) {
+      console.error(err);
+      // Optional: Show toast error
+    } finally {
+      setIsAppending(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto py-10 px-4 max-w-3xl">
@@ -79,6 +111,7 @@ export default function ResearchDetailPage() {
   }
 
   if (error || !note) {
+    // ... existing error view ...
     return (
       <div className="container mx-auto py-20 px-4 text-center">
         <h2 className="text-xl font-semibold mb-2">Error Loading Note</h2>
@@ -136,7 +169,7 @@ export default function ResearchDetailPage() {
           </div>
         </div>
 
-        <Card className="border-0 shadow-sm bg-card/50">
+        <Card className="border-0 shadow-sm bg-card/50 mb-8">
           <CardContent className="pt-6">
             <div className="whitespace-pre-wrap leading-relaxed">
               {note.content || (
@@ -147,6 +180,33 @@ export default function ResearchDetailPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Append Section */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Add to Note</h3>
+          <div className="relative">
+            <Textarea
+              placeholder="Type more details here (Markdown supported)..."
+              value={appendContent}
+              onChange={(e) => setAppendContent(e.target.value)}
+              className="min-h-[100px] bg-background"
+            />
+            <Button
+              className="mt-2 w-full sm:w-auto"
+              onClick={handleAppend}
+              disabled={isAppending || !appendContent.trim()}
+            >
+              {isAppending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Append Note"
+              )}
+            </Button>
+          </div>
+        </div>
       </article>
     </div>
   );

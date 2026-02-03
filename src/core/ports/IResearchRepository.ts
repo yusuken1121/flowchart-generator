@@ -5,4 +5,5 @@ export interface IResearchRepository {
   getCategories(): Promise<CategoryOption[]>;
   findAll(): Promise<ResearchNote[]>;
   findById(id: string): Promise<ResearchNote | null>;
+  appendContent(id: string, content: string): Promise<void>;
 }
