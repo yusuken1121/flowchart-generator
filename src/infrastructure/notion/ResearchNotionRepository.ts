@@ -189,13 +189,14 @@ export class ResearchNotionRepository implements IResearchRepository {
       });
 
       // Simple reconstruction of content from blocks
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const content = blocks.results
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .map((block: any) => {
           // This is a naive implementation. Ideally we convert blocks back to Markdown
           // For now, we just extract plain text from common block types
           const type = block.type;
           if (block[type].rich_text) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return block[type].rich_text.map((t: any) => t.plain_text).join("");
           }
           return "";
